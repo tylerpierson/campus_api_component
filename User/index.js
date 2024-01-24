@@ -24,47 +24,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    password: {
-        type: String,
-        required: true
-    },
-    role: {
-        title: String,
-        enum: ['admin', 'teacher', 'student'],
-        default: 'admin'
-    },
-    campus: {
-        name: String,
-        required: true
-    },
-    grade: {
-        type: Number,
-        required: true,
-    },
-    subjects: [{
-        type: String,
-        required: true
-    }],
-    teachers: [{
-        name: {type: String, required: true},
-        grade: {type: Number, required: true},
-        subjects: [{type: String}],
-        students: [{type: String}]
-    }],
-    assignments: [{
-        type: String,
-        required: true,
-        completed: {
-            type: Boolean,
-            default: false
-        }
-    }],
-    students: [{
-        name: {type: String, required: true},
-        grade: {type: Number, required: true},
-        teachers: [{name: String, required: true}],
-        subjects: [{type: String, required: true}]
-    }]
+    assignments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'}],
 });
 
 userSchema.pre('save', async function(next) {
@@ -167,6 +127,28 @@ const controller = {
             res.status(200).json(foundUser);
         } catch (error) {
             res.status(400).json({ message: error.message });
+        }
+    },
+
+    // POST /movies/:movieId/performers/:performerId
+    async addAssignment(req, res) {
+        try {
+            const foundAssignment = await Assignment.findOne({_id: req.params.assignmentId})
+            if(!foundAssignment) throw new Error(`Could not locate assignment ${req.params.assignmentId}`)
+            const foundUser = await User.findOne({_id: req.params.userId})
+            if(!foundUser) throw new Error(`Could not locate user ${req.params.userId}`)
+            // many to many relationship
+            foundUser.assignments.push(foundAssignment._id)
+            foundAssignment.class.push(foundUser._id)
+            await foundUser.save()
+            await foundAssignment.save()
+            res.status(200).json({
+                msg: `Successfully associated assignment with id ${req.params.assignmentId} with user with id ${req.params.userId}`,
+                user: foundUser,
+                assignment: foundAssignment
+            })
+        } catch (error) {
+            res.status(400).json({ msg: error.message })
         }
     }
 }

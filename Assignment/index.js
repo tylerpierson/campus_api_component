@@ -15,6 +15,7 @@ class Assignment {
 const assignmentSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: String,
+    class: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 },{
     timestamps: true
 }
