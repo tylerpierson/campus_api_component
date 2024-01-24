@@ -77,10 +77,10 @@ const controller = {
 }
 
 // Setup User router
-router.get('/assignments/', controller.index) // Index router
-router.post('/assignments/', controller.create) // Create router
-router.put('/assignments/:id', controller.update) // Update router
-router.delete('/assignments/:id', controller.destroy) // Destroy router
-router.get('/assignments/:id', controller.show) // Show router
+router.get('/', controller.index) // Index router
+router.post('/', controller.create) // Create router
+router.put('/:id', controller.update) // Update router
+router.delete('/:id', controller.destroy) // Destroy router
+router.get('/:id', controller.show) // Show router
 
 module.exports = new Assignment(Model, controller, router)

@@ -3,6 +3,7 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const Assignment = require('../Assignment/index')
 
 // Setup User class
 class User {
@@ -46,7 +47,7 @@ const controller = {
         try {
             const token = req.header('Authorization').replace('Bearer ', '')
             const data = jwt.verify(token, 'secret')
-            const user = await User.findOne({ _id: data._id })
+            const user = await Model.findOne({ _id: data._id })
             if (!user) {
             throw new Error()
             }
@@ -60,7 +61,7 @@ const controller = {
     // Index
     async index(req, res) {
         try {
-            const users = await User.find({})
+            const users = await Model.find({})
             res.status(200).json(users)
         } catch (error) {
             res.status(400).json({ message: error.message })
@@ -70,7 +71,7 @@ const controller = {
       // Create
     async create(req, res) {
         try{
-            const user = new User(req.body)
+            const user = new Model(req.body)
             await user.save()
             const token = await user.generateAuthToken()
             res.json({ user, token })
@@ -82,7 +83,7 @@ const controller = {
     // Login
     async login(req, res) {
         try{
-            const user = await User.findOne({ email: req.body.email })
+            const user = await Model.findOne({ email: req.body.email })
             if (!user || !await bcrypt.compare(req.body.password, user.password)) {
             res.status(400).send('Invalid login credentials')
             } else {
@@ -98,7 +99,7 @@ const controller = {
     async update(req, res) {
         try{
             const updates = Object.keys(req.body)
-            const user = await User.findOne({ _id: req.params.id })
+            const user = await Model.findOne({ _id: req.params.id })
             updates.forEach(update => user[update] = req.body[update])
             await user.save()
             res.json(user)
@@ -110,7 +111,7 @@ const controller = {
     // Destroy
     async destroy(req, res) {
         try {
-            const deletedUser = await User.findOneAndDelete({ _id: req.params.id })
+            const deletedUser = await Model.findOneAndDelete({ _id: req.params.id })
             res.status(200).json({ message: `The user with the ID of ${deletedUser._id} was deleted from the MongoDB database. No further action necessary.`})
         } catch (error) {
             res.status(400).json({ message: error.message }) 
@@ -120,7 +121,7 @@ const controller = {
     // Show
     async show(req, res) {
         try {
-            const foundUser = await User.findOne({ _id: req.params.id });
+            const foundUser = await Model.findOne({ _id: req.params.id });
             if (!foundUser) {
                 return res.status(404).json({ message: 'User not found' });
             }
@@ -130,25 +131,28 @@ const controller = {
         }
     },
 
-    // POST /movies/:movieId/performers/:performerId
+    // POST /users/:userId/assignments/:assignmentId
     async addAssignment(req, res) {
         try {
-            const foundAssignment = await Assignment.findOne({_id: req.params.assignmentId})
-            if(!foundAssignment) throw new Error(`Could not locate assignment ${req.params.assignmentId}`)
-            const foundUser = await User.findOne({_id: req.params.userId})
-            if(!foundUser) throw new Error(`Could not locate user ${req.params.userId}`)
-            // many to many relationship
-            foundUser.assignments.push(foundAssignment._id)
-            foundAssignment.class.push(foundUser._id)
-            await foundUser.save()
-            await foundAssignment.save()
+            const foundAssignment = await Assignment.Model.findOne({ _id: req.params.assignmentId });
+            if (!foundAssignment) throw new Error(`Could not locate assignment ${req.params.assignmentId}`);
+    
+            const foundUser = await this.Model.findOne({ _id: req.params.userId });
+            if (!foundUser) throw new Error(`Could not locate user ${req.params.userId}`);
+    
+            // many-to-many relationship
+            foundUser.assignments.push(foundAssignment._id);
+            foundAssignment.class.push(foundUser._id);
+            await foundUser.save();
+            await foundAssignment.save();
+    
             res.status(200).json({
                 msg: `Successfully associated assignment with id ${req.params.assignmentId} with user with id ${req.params.userId}`,
                 user: foundUser,
                 assignment: foundAssignment
-            })
+            });
         } catch (error) {
-            res.status(400).json({ msg: error.message })
+            res.status(400).json({ msg: error.message });
         }
     }
 }
@@ -160,6 +164,8 @@ router.post('/login', controller.login) // Login router
 router.put('/:id', controller.update) // Update router
 router.delete('/:id', controller.destroy) // Destroy router
 router.get('/:id', controller.show) // Show router
+router.post('/:userId/assignments/:assignmentId', controller.addAssignment);
+
 
 // Export new User
 module.exports = new User(Model, controller, router)
