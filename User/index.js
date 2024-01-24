@@ -3,7 +3,7 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const Assignment = require('../Assignment/index')
+const Assignment = require('../Assignment')
 
 // Setup User class
 class User {
@@ -137,7 +137,7 @@ const controller = {
             const foundAssignment = await Assignment.Model.findOne({ _id: req.params.assignmentId });
             if (!foundAssignment) throw new Error(`Could not locate assignment ${req.params.assignmentId}`);
     
-            const foundUser = await this.Model.findOne({ _id: req.params.userId });
+            const foundUser = await Model.findOne({ _id: req.params.userId });
             if (!foundUser) throw new Error(`Could not locate user ${req.params.userId}`);
     
             // many-to-many relationship
