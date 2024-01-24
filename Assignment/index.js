@@ -83,4 +83,4 @@ router.put('/assignments/:id', controller.update) // Update router
 router.delete('/assignments/:id', controller.destroy) // Destroy router
 router.get('/assignments/:id', controller.show) // Show router
 
-module.exports = new User(Model, controller, router)
+module.exports = new Assignment(Model, controller, router)

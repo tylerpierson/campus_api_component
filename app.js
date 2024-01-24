@@ -4,7 +4,7 @@ const User = require('./User')
 const Assignment = require('./Assignment')
 
 app.use(express.json())
-app.use('/users', Movie.router)
+app.use('/users', User.router)
 app.use('/assignments', Assignment.router)
 
 
