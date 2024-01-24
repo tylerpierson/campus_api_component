@@ -171,7 +171,7 @@ const controller = {
     }
 }
 
-// Setup User router
+// Setup User router -- ****NEED TO FIX THESE ROUTES****
 router.get('/', controller.index) // Index router
 router.post('/', controller.create) // Create router
 router.post('/login', controller.login) // Login router
