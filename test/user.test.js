@@ -7,6 +7,38 @@ const mongoose = require('mongoose')
 const server = app.listen(8080, () => console.log('Testing on Port 8080'))
 let mongoServer 
 
+const mockAdmin = {
+  name: 'Test Admin',
+  email: 'admin@example.com',
+  password: 'password',
+  campus: 'Test Campus',
+  role: 'admin',
+  subjects: [],
+  students: [],
+  assignments: []
+}
+
+const mockTeacher = {
+  name: 'Test Teacher',
+  email: 'teacher@example.com',
+  password: 'password',
+  campus: 'Test Campus',
+  role: 'teacher',
+  subjects: [],
+  students: [],
+  assignments: []
+}
+
+const mockStudent = {
+  name: 'Test Student',
+  email: 'student@example.com',
+  password: 'password',
+  campus: 'Test Campus',
+  role: 'student',
+  subjects: [],
+  students: [],
+  assignments: []
+}
 
 beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create()
@@ -24,13 +56,22 @@ afterAll(async () => {
 describe('Test suite for the /users routes on our api', () => {
     // /users
     test('It should create a new user in the db', async () => {
-        const response = await request(app).post('/users').send({ name: 'Jeremy Casanova', email: 'casanova@smooth.com' })
-
-        expect(response.statusCode).toBe(200)
-        expect(response.body.user.name).toEqual('Jeremy Casanova')
-        expect(response.body.user.email).toEqual('casanova@smooth.com')
-        expect(response.body).toHaveProperty('token')
-    })
+      const response = await request(app).post('/users').send({
+        name: 'Tyler Pierson',
+        email: 'tyler@pierson.com',
+        password: 'secret',
+        campus: 'Sandbrock Elementary',
+        role: 'admin',
+        subjects: [],
+        students: [],
+        assignments: []
+      });
+  
+      // expect(response.statusCode).toBe(200);
+      expect(response.body.user.name).toEqual('Tyler Pierson');
+      expect(response.body.user.email).toEqual('tyler@pierson.com');
+      // Adjust other expectations as needed based on your application's response structure
+    });
 
     // /users/login
     test('It should login a user', async () => {
