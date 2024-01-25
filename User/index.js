@@ -76,6 +76,7 @@ const controller = {
         next()
     },
 
+    // middleware to allow all staff members certain permissions
     async staffPermissions(req, res, next) {
         if(req.user.role === 'student') {
             res.status(401).json('Permission Denied')
@@ -172,30 +173,30 @@ const controller = {
     // Show
     async show(req, res) {
         try {
-            const foundUser = await Model.findOne({ _id: req.params.id });
+            const foundUser = await Model.findOne({ _id: req.params.id })
             if (!foundUser) {
-                return res.status(404).json({ message: 'User not found' });
+                return res.status(404).json({ message: 'User not found' })
             }
-            res.status(200).json(foundUser);
+            res.status(200).json(foundUser)
         } catch (error) {
-            res.status(400).json({ message: error.message });
+            res.status(400).json({ message: error.message })
         }
     },
 
     // POST /users/:userId/assignments/:assignmentId
     async addAssignment(req, res) {
         try {
-            const foundAssignment = await Assignment.Model.findOne({ _id: req.params.assignmentId });
-            if (!foundAssignment) throw new Error(`Could not locate assignment ${req.params.assignmentId}`);
+            const foundAssignment = await Assignment.Model.findOne({ _id: req.params.assignmentId })
+            if (!foundAssignment) throw new Error(`Could not locate assignment ${req.params.assignmentId}`)
     
-            const foundUser = await Model.findOne({ _id: req.params.userId });
-            if (!foundUser) throw new Error(`Could not locate user ${req.params.userId}`);
+            const foundUser = await Model.findOne({ _id: req.params.userId })
+            if (!foundUser) throw new Error(`Could not locate user ${req.params.userId}`)
     
             // many-to-many relationship
-            foundUser.assignments.push(foundAssignment._id);
-            foundAssignment.class.push(foundUser._id);
-            await foundUser.save();
-            await foundAssignment.save();
+            foundUser.assignments.push(foundAssignment._id)
+            foundAssignment.class.push(foundUser._id)
+            await foundUser.save()
+            await foundAssignment.save()
     
             res.status(200).json({
                 msg: `Successfully associated assignment with id ${req.params.assignmentId} with user with id ${req.params.userId}`,
@@ -203,7 +204,7 @@ const controller = {
                 assignment: foundAssignment
             });
         } catch (error) {
-            res.status(400).json({ msg: error.message });
+            res.status(400).json({ msg: error.message })
         }
     }
 }
@@ -212,10 +213,10 @@ const controller = {
 router.get('/', controller.auth, controller.teacherRole, controller.adminRole, controller.index) // Index router
 router.post('/', controller.auth, controller.staffPermissions, controller.create) // Create router
 router.post('/login', controller.login) // Login router
-router.put('/:id', controller.update) // Update router
-router.delete('/:id', controller.destroy) // Destroy router
+router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
+router.delete('/:id', controller.auth, controller.adminRole, controller.destroy) // Destroy router
 router.get('/:id', controller.show) // Show router
-router.post('/:userId/assignments/:assignmentId', controller.auth, controller.staffPermissions, controller.addAssignment);
+router.post('/:userId/assignments/:assignmentId', controller.auth, controller.staffPermissions, controller.addAssignment)
 
 
 // Export new User
