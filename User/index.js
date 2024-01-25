@@ -26,11 +26,13 @@ const userSchema = new mongoose.Schema({
         unique: true
     },
     password: { type: String, required: true},
+    campus: {type: String, required: true},
     role: {
         type: String,
         enum: ['admin', 'teacher', 'student'],
         default: 'admin'
     },
+    subjects: [String],
     assignments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'}],
 });
 
@@ -62,6 +64,14 @@ const controller = {
         } catch (error) {
             res.status(401).send('Not authorized')
         }
+    },
+
+    async adminRole(req, res, next) {
+        if(req.user.role !== 'admin') {
+            res.status(401).json('Permission Denied')
+            return
+        }
+        next()
     },
 
     async teacherRole(req, res, next) {
@@ -181,7 +191,7 @@ const controller = {
 }
 
 // Setup User router
-router.get('/', controller.auth, controller.teacherRole, controller.index) // Index router
+router.get('/', controller.auth, controller.teacherRole, controller.adminRole, controller.index) // Index router
 router.post('/', controller.create) // Create router
 router.post('/login', controller.login) // Login router
 router.put('/:id', controller.update) // Update router
