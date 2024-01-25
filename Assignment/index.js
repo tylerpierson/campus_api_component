@@ -40,6 +40,7 @@ const controller = {
     async create(req, res) {
         try {
             const assignment = new Model(req.body)
+            await assignment.save()
             res.status(200).json(assignment)
         } catch (error) {
             res.status(400).json({ msg: error.message })
