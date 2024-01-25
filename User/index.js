@@ -64,9 +64,10 @@ const controller = {
         }
     },
 
-    async adminRole(req, res, next) {
-        if(req.user.role !== 'admin') {
-            res.status(401).json('Permission denied')
+    async teacherRole(req, res, next) {
+        if(req.user.role === 'teacher') {
+            const students = await Model.find({ role: 'student' })
+            res.status(200).json(students)
             return
         }
         next()
@@ -82,7 +83,7 @@ const controller = {
         }
     },
       
-    // Create
+      // Create
     async create(req, res) {
         try{
             const user = new Model(req.body)
@@ -114,6 +115,7 @@ const controller = {
         try {
             const updates = Object.keys(req.body)
             const user = await Model.findOne({ _id: req.params.id })
+
             updates.forEach(update => user[update] = req.body[update])
             await user.save()
             res.json(user)
@@ -125,6 +127,13 @@ const controller = {
     // Destroy
     async destroy(req, res) {
         try {
+            const user = await Model.findOne({ _id: req.params.id })
+
+            // I'll use this block of code to authorize the user before deleting
+            if (!req.user || req.user._id.toString() !== user._id.toString()) {
+                return res.status(401).json({ message: 'Not authorized to delete this user' })
+            }
+
             const deletedUser = await Model.findOneAndDelete({ _id: req.params.id })
             res.status(200).json({ message: `The user with the ID of ${deletedUser._id} was deleted from the MongoDB database. No further action necessary.` })
         } catch (error) {
@@ -172,7 +181,7 @@ const controller = {
 }
 
 // Setup User router
-router.get('/', controller.index) // Index router
+router.get('/', controller.auth, controller.teacherRole, controller.index) // Index router
 router.post('/', controller.create) // Create router
 router.post('/login', controller.login) // Login router
 router.put('/:id', controller.update) // Update router
