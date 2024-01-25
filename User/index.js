@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema({
         default: 'admin'
     },
     subjects: [String],
+    students: [String],
     assignments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'}],
 });
 
@@ -66,6 +67,7 @@ const controller = {
         }
     },
 
+    // adminRole middleware to prevent teachers and students from accessing certain datasets
     async adminRole(req, res, next) {
         if(req.user.role !== 'admin') {
             res.status(401).json('Permission Denied')
@@ -74,6 +76,15 @@ const controller = {
         next()
     },
 
+    async staffPermissions(req, res, next) {
+        if(req.user.role === 'student') {
+            res.status(401).json('Permission Denied')
+            return
+        }
+        next()
+    },
+
+    // teacherRole middleware to prevent students from accessing certain datasets
     async teacherRole(req, res, next) {
         if(req.user.role === 'teacher') {
             const students = await Model.find({ role: 'student' })
@@ -93,15 +104,22 @@ const controller = {
         }
     },
       
-      // Create
+    // Create
     async create(req, res) {
-        try{
+        try {
             const user = new Model(req.body)
             await user.save()
             const token = await user.generateAuthToken()
+
+            if (req.user.role === 'teacher' && user.role === 'student') {
+                const teacher = req.user
+                teacher.students.push(user._id)
+                await teacher.save()
+            }
+
             res.json({ user, token })
-        } catch(error){
-            res.status(400).json({message: error.message})
+        } catch (error) {
+            res.status(400).json({ message: error.message })
         }
     },
       
@@ -192,12 +210,12 @@ const controller = {
 
 // Setup User router
 router.get('/', controller.auth, controller.teacherRole, controller.adminRole, controller.index) // Index router
-router.post('/', controller.create) // Create router
+router.post('/', controller.auth, controller.staffPermissions, controller.create) // Create router
 router.post('/login', controller.login) // Login router
 router.put('/:id', controller.update) // Update router
 router.delete('/:id', controller.destroy) // Destroy router
 router.get('/:id', controller.show) // Show router
-router.post('/:userId/assignments/:assignmentId', controller.addAssignment);
+router.post('/:userId/assignments/:assignmentId', controller.auth, controller.staffPermissions, controller.addAssignment);
 
 
 // Export new User
