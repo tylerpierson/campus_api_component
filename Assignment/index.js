@@ -15,6 +15,7 @@ class Assignment {
 const assignmentSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: String,
+    completed: { type: Boolean, default: false },
     class: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 },{
     timestamps: true
@@ -28,18 +29,18 @@ const controller = {
     // index
     async index(req, res) {
         try {
-            const foundAssignments = await Model.find({})
-            res.status(200).json(foundAssignments)
+            const assignments = await Model.find({})
+            res.status(200).json(assignments)
         } catch (error) {
-            res.status(400).json({ msg: error.message })
+            res.status(400).json({ message: error.message })
         }
     },
 
     // create
     async create(req, res) {
         try {
-            const createdAssignment = Model.create(req.body)
-            res.status(200).json(createdAssignment)
+            const assignment = new Model(req.body)
+            res.status(200).json(assignment)
         } catch (error) {
             res.status(400).json({ msg: error.message })
         }
@@ -47,31 +48,37 @@ const controller = {
 
     // update
     async update(req, res) {
-        try {
-            const updatedAssignment = Model.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
-            res.status(200).json(updatedAssignment)
-        } catch (error) {
-            res.status(400).json({ msg: error.message })
+        try{
+            const updates = Object.keys(req.body)
+            const assignment = await Model.findOne({ _id: req.params.id })
+            updates.forEach(update => assignment[update] = req.body[update])
+            await assignment.save()
+            res.json(assignment)
+        }catch(error){
+            res.status(400).json({message: error.message})
         }
     },
 
     // destroy
     async destroy(req, res) {
         try {
-            const destroyedAssignment = Model.findOneAndDelete({ _id: req.params.id })
-            res.status(200).json({ msg: `Assignment ${destroyedAssignment._id} was deleted from the MongoDB database. No further action necessary.`})
+            const deletedAssignment = await Model.findOneAndDelete({ _id: req.params.id })
+            res.status(200).json({ message: `The assignment with the ID of ${deletedAssignment._id} was deleted from the MongoDB database. No further action necessary.`})
         } catch (error) {
-            res.status(400).json({ msg: error.message })
+            res.status(400).json({ message: error.message }) 
         }
     },
 
     // show
     async show(req, res) {
         try {
-            const foundAssignment = Model.findOne({ _id: req.params.id })
-            res.status(200).json(foundAssignment)
+            const foundAssignment = await Model.findOne({ _id: req.params.id });
+            if (!foundAssignment) {
+                return res.status(404).json({ message: 'Assignment not found' });
+            }
+            res.status(200).json(foundAssignment);
         } catch (error) {
-            res.status(400).json({ msg: error.message })
+            res.status(400).json({ message: error.message });
         }
     }
 }
