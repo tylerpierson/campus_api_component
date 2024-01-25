@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    role: {
+        type: String,
+        enum: ['admin', 'teacher', 'student'],
+        default: 'admin'
+    },
     assignments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'}],
 });
 
@@ -97,24 +102,37 @@ const controller = {
       
     // Update
     async update(req, res) {
-        try{
+        try {
             const updates = Object.keys(req.body)
             const user = await Model.findOne({ _id: req.params.id })
+
+            // I'll use this block of code to authorize the user before updating
+            if (!req.user || req.user._id.toString() !== user._id.toString()) {
+                return res.status(401).json({ message: 'Not authorized to update this user' })
+            }
+
             updates.forEach(update => user[update] = req.body[update])
             await user.save()
             res.json(user)
-        }catch(error){
-            res.status(400).json({message: error.message})
+        } catch (error) {
+            res.status(400).json({ message: error.message })
         }
     },
       
     // Destroy
     async destroy(req, res) {
         try {
+            const user = await Model.findOne({ _id: req.params.id })
+
+            // I'll use this block of code to authorize the user before deleting
+            if (!req.user || req.user._id.toString() !== user._id.toString()) {
+                return res.status(401).json({ message: 'Not authorized to delete this user' })
+            }
+
             const deletedUser = await Model.findOneAndDelete({ _id: req.params.id })
-            res.status(200).json({ message: `The user with the ID of ${deletedUser._id} was deleted from the MongoDB database. No further action necessary.`})
+            res.status(200).json({ message: `The user with the ID of ${deletedUser._id} was deleted from the MongoDB database. No further action necessary.` })
         } catch (error) {
-            res.status(400).json({ message: error.message }) 
+            res.status(400).json({ message: error.message })
         }
     },
       
