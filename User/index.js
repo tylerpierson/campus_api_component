@@ -4,6 +4,7 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const Assignment = require('../Assignment')
+const secretKey = process.env.SECRET
 
 // Setup User class
 class User {
@@ -33,7 +34,7 @@ const userSchema = new mongoose.Schema({
         default: 'admin'
     },
     subjects: [String],
-    students: [String],
+    students: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     assignments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'}],
 });
 
@@ -44,7 +45,7 @@ userSchema.pre('save', async function(next) {
     next()
 })
 userSchema.methods.generateAuthToken = async function() {
-    const token = jwt.sign({_id: this._id}, 'secret')
+    const token = jwt.sign({_id: this._id}, secretKey)
     return token
 }
 
@@ -111,12 +112,6 @@ const controller = {
             const user = new Model(req.body)
             await user.save()
             const token = await user.generateAuthToken()
-
-            if (req.user.role === 'teacher' && user.role === 'student') {
-                const teacher = req.user
-                teacher.students.push(user._id)
-                await teacher.save()
-            }
 
             res.json({ user, token })
         } catch (error) {
@@ -211,7 +206,7 @@ const controller = {
 
 // Setup User router
 router.get('/', controller.auth, controller.teacherRole, controller.adminRole, controller.index) // Index router
-router.post('/', controller.auth, controller.staffPermissions, controller.create) // Create router
+router.post('/', controller.create) // Create router
 router.post('/login', controller.login) // Login router
 router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
 router.delete('/:id', controller.auth, controller.adminRole, controller.destroy) // Destroy router
