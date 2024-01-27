@@ -56,7 +56,7 @@ const controller = {
     async auth(req, res, next) {
         try {
             const token = req.header('Authorization').replace('Bearer ', '')
-            const data = jwt.verify(token, 'secret')
+            const data = jwt.verify(token, secretKey)
             const user = await Model.findOne({ _id: data._id })
             if (!user) {
             throw new Error()
@@ -151,6 +151,13 @@ const controller = {
     // Destroy
     async destroy(req, res) {
         try {
+            const user = await Model.findOne({ _id: req.params.id })
+
+            // I'll use this block of code to authorize the user before deleting
+            if (!req.user || req.user._id.toString() !== user._id.toString()) {
+                return res.status(401).json({ message: 'Not authorized to delete this user' })
+            }
+
             const deletedUser = await Model.findOneAndDelete({ _id: req.params.id })
             res.status(200).json({ message: `The user with the ID of ${deletedUser._id} was deleted from the MongoDB database. No further action necessary.` })
         } catch (error) {
@@ -198,13 +205,13 @@ const controller = {
 }
 
 // Setup User router
-router.get('/', controller.index) // Index router
+router.get('/', controller.auth, controller.teacherRole, controller.adminRole, controller.index) // Index router
 router.post('/', controller.create) // Create router
 router.post('/login', controller.login) // Login router
-router.put('/:id', controller.update) // Update router
-router.delete('/:id', controller.destroy) // Destroy router
+router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
+router.delete('/:id', controller.auth, controller.adminRole, controller.destroy) // Destroy router
 router.get('/:id', controller.show) // Show router
-router.post('/:userId/assignments/:assignmentId', controller.addAssignment)
+router.post('/:userId/assignments/:assignmentId', controller.auth, controller.staffPermissions, controller.addAssignment)
 
 
 // Export new User

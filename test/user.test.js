@@ -3,7 +3,6 @@ require('dotenv').config()
 const request = require('supertest') // this is the thing that lets us run our code like postman
 const { MongoMemoryServer } =  require('mongodb-memory-server')// this creates the fake mongodb databse that exists on our computer in our memory not on atlas
 const app = require('../app') // this is our api application that we made with express this is the thing that we are giving to supertest to test
-const User = require('../User/index').Model // this is for us to be able to do crud operation on the User
 const mongoose = require('mongoose')
 const server = app.listen(8080, () => console.log('Testing on Port 8080'))
 let mongoServer 
@@ -22,9 +21,11 @@ afterAll(async () => {
 afterAll((done) => done())
 
 describe('Test the users endpoints', () => {
+  // Set a variable for the token and user Id so I only have to call on the variables and not create a new User each time
   let authToken
   let userId
 
+  // Create
   test('It should create a new user', async () => {
     const response = await request(app)
       .post('/users')
@@ -33,9 +34,13 @@ describe('Test the users endpoints', () => {
     expect(response.statusCode).toBe(200)
     expect(response.body.user.name).toEqual('John Doe')
     expect(response.body.user.email).toEqual('john.doe@example.com')
+    expect(response.body.user.password).toBeTruthy()
     expect(response.body).toHaveProperty('token')
+
+    console.log(response.body)
   })
 
+  // Login
   test('It should login a user', async () => {
     const response = await request(app)
       .post('/users/login')
@@ -50,6 +55,18 @@ describe('Test the users endpoints', () => {
     userId = response.body.user._id
   })
 
+  // Index
+  test('It should create a new user', async () => {
+    expect(authToken).toBeDefined()
+
+    const response = await request(app)
+      .get('/users')
+      .set('Authorization', `Bearer ${authToken}`)
+    
+    expect(response.statusCode).toBe(200)
+  })
+
+  // Update
   test('It should update a user', async () => {
     expect(authToken).toBeDefined()
     expect(userId).toBeDefined()
@@ -64,6 +81,7 @@ describe('Test the users endpoints', () => {
     expect(response.body.email).toEqual('jane.johnson@example.com')
   })
 
+  // Destroy
   test('It should delete a user', async () => {
     expect(authToken).toBeDefined()
     expect(userId).toBeDefined()
