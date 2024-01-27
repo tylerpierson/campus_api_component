@@ -234,7 +234,7 @@ const controller = {
 }
 
 // Setup User router
-router.get('/', controller.auth, controller.teacherRole, controller.adminRole, controller.index) // Index router
+router.get('/', controller.auth, controller.adminRole, controller.index) // Index router
 router.post('/', controller.create) // Create router
 router.post('/login', controller.login) // Login router
 router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
