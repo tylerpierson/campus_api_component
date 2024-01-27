@@ -17,6 +17,7 @@ class User {
 
 // Setup userSchema
 const userSchema = new mongoose.Schema({
+    campusCode: String,
     name: {
         type: String,
         required: true
@@ -35,6 +36,7 @@ const userSchema = new mongoose.Schema({
     },
     subjects: [String],
     students: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+    teachers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     assignments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'}],
 });
 
@@ -58,6 +60,7 @@ const controller = {
             const token = req.header('Authorization').replace('Bearer ', '')
             const data = jwt.verify(token, secretKey)
             const user = await Model.findOne({ _id: data._id })
+
             if (!user) {
             throw new Error()
             }
@@ -178,6 +181,32 @@ const controller = {
         }
     },
 
+    // Create a new student as a teacher and push that student id into the teacher.students array
+    async teacherCreateStudent(req, res) {
+        try {
+            const teacherId = req.params.id
+            const teacher = await Model.findById(teacherId)
+    
+            if (!teacher || teacher.role !== 'teacher') {
+                return res.status(404).json({ error: 'Teacher not found or invalid role' })
+            }
+            
+            const student = new Model(req.body)
+            student.role = 'student'
+            student.teachers.push(teacher._id)
+            await student.save()
+    
+            teacher.students.push(student._id)
+            await teacher.save()
+    
+            const token = await student.generateAuthToken()
+    
+            res.json({ student, token })
+        } catch (error) {
+            res.status(400).json({ message: error.message })
+        }
+    },
+
     // POST /users/:userId/assignments/:assignmentId
     async addAssignment(req, res) {
         try {
@@ -211,6 +240,7 @@ router.post('/login', controller.login) // Login router
 router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
 router.delete('/:id', controller.auth, controller.adminRole, controller.destroy) // Destroy router
 router.get('/:id', controller.show) // Show router
+router.post('/:id', controller.teacherCreateStudent) // Create a student as a teacher *** NEEDS TESTING STILL ***
 router.post('/:userId/assignments/:assignmentId', controller.auth, controller.staffPermissions, controller.addAssignment)
 
 
