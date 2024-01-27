@@ -36,8 +36,6 @@ describe('Test the users endpoints', () => {
     expect(response.body.user.email).toEqual('john.doe@example.com')
     expect(response.body.user.password).toBeTruthy()
     expect(response.body).toHaveProperty('token')
-
-    console.log(response.body)
   })
 
   // Login
