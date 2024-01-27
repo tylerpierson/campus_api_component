@@ -8,79 +8,71 @@ const mongoose = require('mongoose')
 const server = app.listen(8080, () => console.log('Testing on Port 8080'))
 let mongoServer 
 
-// const mockAdmin = {
-//   name: 'Test Admin',
-//   email: 'admin@example.com',
-//   password: 'password',
-//   campus: 'Test Campus',
-//   role: 'admin',
-//   subjects: [],
-//   students: [],
-//   assignments: []
-// }
-
-// const mockTeacher = {
-//   name: 'Test Teacher',
-//   email: 'teacher@example.com',
-//   password: 'password',
-//   campus: 'Test Campus',
-//   role: 'teacher',
-//   subjects: [],
-//   students: [],
-//   assignments: []
-// }
-
-// const mockStudent = {
-//   name: 'Test Student',
-//   email: 'student@example.com',
-//   password: 'password',
-//   campus: 'Test Campus',
-//   role: 'student',
-//   subjects: [],
-//   students: [],
-//   assignments: []
-// }
-
-// let admin, teacher, student
-
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create()
-    mongoose.connect(mongoServer.getUri(), { useNewUrlParser: true, useUnifiedTopology: true })
-
-    // admin = new User(mockAdmin)
-    // teacher = new User(mockTeacher)
-    // student = new User(mockStudent)
+  mongoServer = await MongoMemoryServer.create()
+  await mongoose.connect(mongoServer.getUri(), { useNewUrlParser: true, useUnifiedTopology: true })
 })
 
 afterAll(async () => {
-    await mongoose.connection.close()// shut off mongoose connection with mongodb
-    mongoServer.stop()
-    server.close()
+  await mongoose.connection.close()
+  mongoServer.stop()
+  server.close()
 })
 
+afterAll((done) => done())
 
+describe('Test the users endpoints', () => {
+  let authToken
+  let userId
 
-describe('Test suite for the /users routes on our api', () => {
-    // Create User
-    test('It should create a new user', async () => {
-      const response = await request(app)
-        .post('/users')
-        .send({
-          name: 'Test Admin',
-          email: 'admin@example.com',
-          password: 'password',
-          campus: 'Test Campus',
-          role: 'admin',
-          subjects: [],
-          students: [],
-          assignments: [] 
-        })
-        console.log(response.body)
+  test('It should create a new user', async () => {
+    const response = await request(app)
+      .post('/users')
+      .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', campus: 'SES', role: 'admin' })
+    
+    expect(response.statusCode).toBe(200)
+    expect(response.body.user.name).toEqual('John Doe')
+    expect(response.body.user.email).toEqual('john.doe@example.com')
+    expect(response.body).toHaveProperty('token')
+  })
 
-      expect(response.body.user.name).toEqual('Test Admin')
-      expect(response.body.user.email).toEqual('admin@example.com')
-      expect(response.body.user.campus).toEqual('Test Campus')
-      expect(response.body.user.role).toEqual('admin')
-      expect(response.body).toHaveProperty('token')
-    })
+  test('It should login a user', async () => {
+    const response = await request(app)
+      .post('/users/login')
+      .send({ email: 'john.doe@example.com', password: 'password123' })
+    
+    expect(response.statusCode).toBe(200)
+    expect(response.body.user.name).toEqual('John Doe')
+    expect(response.body.user.email).toEqual('john.doe@example.com')
+    expect(response.body).toHaveProperty('token')
+
+    authToken = response.body.token
+    userId = response.body.user._id
+  })
+
+  test('It should update a user', async () => {
+    expect(authToken).toBeDefined()
+    expect(userId).toBeDefined()
+
+    const response = await request(app)
+      .put(`/users/${userId}`)
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ name: 'Jane Johnson', email: 'jane.johnson@example.com' })
+    
+    expect(response.statusCode).toBe(200)
+    expect(response.body.name).toEqual('Jane Johnson')
+    expect(response.body.email).toEqual('jane.johnson@example.com')
+  })
+
+  test('It should delete a user', async () => {
+    expect(authToken).toBeDefined()
+    expect(userId).toBeDefined()
+
+    const response = await request(app)
+      .delete(`/users/${userId}`)
+      .set('Authorization', `Bearer ${authToken}`)
+    
+    expect(response.statusCode).toBe(200)
+    expect(response.body.message).toEqual(`The user with the ID of ${userId} was deleted from the MongoDB database. No further action necessary.`)
+  })
 })
