@@ -182,6 +182,31 @@ const controller = {
     },
 
     // Create a new student as a teacher and push that student id into the teacher.students array
+    async adminCreate(req, res) {
+        try {
+            const adminId = req.params.id
+            const admin = await Model.findById(adminId)
+    
+            if (!admin || admin.role !== 'admin') {
+                return res.status(404).json({ error: 'Admin not found or invalid role' })
+            }
+            
+            const teacher = new Model(req.body)
+            teacher.role = 'teacher'
+            await teacher.save()
+    
+            admin.teachers.push(teacher._id)
+            await admin.save()
+    
+            const token = await teacher.generateAuthToken()
+    
+            res.json({ teacher, token })
+        } catch (error) {
+            res.status(400).json({ message: error.message })
+        }
+    },
+
+    // Create a new student as a teacher and push that student id into the teacher.students array
     async teacherCreateStudent(req, res) {
         try {
             const teacherId = req.params.id
@@ -241,6 +266,7 @@ router.post('/login', controller.login) // Login router
 router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
 router.delete('/:id', controller.auth, controller.adminRole, controller.destroy) // Destroy router
 router.get('/:id', controller.show) // Show router
+router.post('/:id', controller.adminCreate)
 router.post('/:id', controller.teacherCreateStudent) // Create a student as a teacher *** NEEDS TESTING STILL ***
 router.post('/:userId/assignments/:assignmentId', controller.auth, controller.staffPermissions, controller.addAssignment)
 
