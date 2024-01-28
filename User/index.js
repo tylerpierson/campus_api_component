@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const Assignment = require('../Assignment')
 const secretKey = process.env.SECRET
+const campusCode = process.env.CAMPUS_CODE
 
 // Setup User class
 class User {
@@ -17,7 +18,6 @@ class User {
 
 // Setup userSchema
 const userSchema = new mongoose.Schema({
-    campusCode: String,
     name: {
         type: String,
         required: true
@@ -235,7 +235,8 @@ const controller = {
 
 // Setup User router
 router.get('/', controller.auth, controller.adminRole, controller.index) // Index router
-router.post('/', controller.create) // Create router
+// router.post('/', controller.create) // Create router
+router.post(`/${campusCode}`, controller.create) // Create with campus Code
 router.post('/login', controller.login) // Login router
 router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
 router.delete('/:id', controller.auth, controller.adminRole, controller.destroy) // Destroy router

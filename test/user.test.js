@@ -5,6 +5,7 @@ const { MongoMemoryServer } =  require('mongodb-memory-server')// this creates t
 const app = require('../app') // this is our api application that we made with express this is the thing that we are giving to supertest to test
 const mongoose = require('mongoose')
 const server = app.listen(8080, () => console.log('Testing on Port 8080'))
+const campusCode = process.env.CAMPUS_CODE
 let mongoServer 
 
 beforeAll(async () => {
@@ -28,7 +29,7 @@ describe('Test the users endpoints', () => {
   // Create
   test('It should create a new user', async () => {
     const response = await request(app)
-      .post('/users')
+      .post(`/users/${campusCode}`)
       .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', campus: 'SES', role: 'admin' })
     
     expect(response.statusCode).toBe(200)
