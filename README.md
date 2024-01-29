@@ -38,3 +38,9 @@ campus-api-component
 5. While still in the .env file, include a secret [SHA256](emn178.github.io/online-tools/sha256.html) key in the following
     format: **SECRET=<\secretKey>**. Also include a campus code to create initial admin accounts in the following format:
     **CAMPUS_CODE:<\code of your choosing>**.
+    **Save updated code**
+6. Begin running tests
+
+### Running API Testing
+To run the automated tests, run ```npm run test``` in the command line. This should return that **2 Test Suites** passed
+and **12 Tests** have passed with **0 fails**, indicating a successful installation of the application.
