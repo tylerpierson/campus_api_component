@@ -34,7 +34,7 @@ campus-api-component
 3. Once the directory is cloned onto your computer, run ```npm i``` in the command line to install
     all of the dependencies found within my package.json file.
 4. Within the root folder, touch .env and add in your personal MongoDB connection String in the following
-    format: mongodb+srv://piertyler:<password>@cluster0.ozwjnx2.mongodb.net/?retryWrites=true&w=majority
+    format: **mongodb+srv://piertyler:<\password>@cluster0.ozwjnx2.mongodb.net/?retryWrites=true&w=majority**
 5. While still in the .env file, include a secret [SHA256](emn178.github.io/online-tools/sha256.html) key in the following
-    format: SECRET=<\secretKey>. Also include a campus code to create initial admin accounts in the following format:
-    CAMPUS_CODE:<\code of your choosing>.
+    format: **SECRET=<\secretKey>**. Also include a campus code to create initial admin accounts in the following format:
+    **CAMPUS_CODE:<\code of your choosing>**.
