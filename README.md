@@ -44,3 +44,20 @@ campus-api-component
 ### Running API Testing
 To run the automated tests, run ```npm run test``` in the command line. This should return that **2 Test Suites** passed
 and **12 Tests** have passed with **0 fails**, indicating a successful installation of the application.
+
+## Running Manual Tests in PostMan
+### Create initial user
+In order to create an initial user on the application, a campus code is needed. With the proper code connected through the .env file, you would send a POST request to **localhost:3000/users/${campusCode}**. The necessary information can be located within the **User/index.js** file, but can be seen below with example values (any information not included from the userSchema is optional). This information will be placed as JSON in the body of the postman request:
+```
+    {
+        "name": "John Doe",
+        "email": "johndoe@admin.com",
+        "password": "secret",
+        "campus": "GA Elementary"
+        "role": "admin"
+    }
+```
+After this sends, it should return a new user with an ID. This ID will be used later to create more users from that specific account.
+
+### Login User
+To log into the user account, another POST request will be sent to **localhost:3000/users/login**. The only information that will be needed is a valid **email** and **password** from an existing user. Once that user has been logged in, an authentication token will be generated to grant that user specific permissions. For the recently created admin, it is important to grab that token and store it in the header with a key of *Authorization* and a value of *Bearer <\your auth token>*. This will be utilized later when creating more teachers and students.
