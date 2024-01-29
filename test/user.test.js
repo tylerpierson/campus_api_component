@@ -26,7 +26,7 @@ describe('Test the users endpoints', () => {
   let authToken
   let userId
 
-  // Create
+  // Create using campus code
   test('It should create a new user', async () => {
     const response = await request(app)
       .post(`/users/${campusCode}`)
@@ -80,6 +80,22 @@ describe('Test the users endpoints', () => {
     expect(response.body.email).toEqual('jane.johnson@example.com')
   })
 
+  // router.post('/:id', controller.auth, controller.createStudent)
+  // Create student as admin or teacher
+  test('It should create a student as an admin or teacher role', async () => {
+    expect(authToken).toBeDefined()
+    expect(userId).toBeDefined()
+
+    const response = await request(app)
+      .post(`/users/${userId}`)
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', campus: 'SES', role: 'student' })
+    
+    expect(response.statusCode).toBe(200)
+    expect(response.body).toHaveProperty('student');
+    expect(response.body).toHaveProperty('token');
+  })
+  
   // Destroy
   test('It should delete a user', async () => {
     expect(authToken).toBeDefined()
