@@ -243,7 +243,7 @@ router.post('/login', controller.login) // Login router
 router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
 router.delete('/:id', controller.auth, controller.adminRole, controller.destroy) // Destroy router
 router.get('/:id', controller.show) // Show router
-router.post('/:id', controller.auth, controller.createStudent) // Create a student as a teacher *** NEEDS TESTING STILL ***
+router.post('/:id', controller.auth, controller.createStudent) // Create a student as a teacher
 router.post('/:userId/assignments/:assignmentId', controller.auth, controller.staffPermissions, controller.addAssignment)
 
 

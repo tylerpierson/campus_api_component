@@ -80,7 +80,6 @@ describe('Test the users endpoints', () => {
     expect(response.body.email).toEqual('jane.johnson@example.com')
   })
 
-  // router.post('/:id', controller.auth, controller.createStudent)
   // Create student as admin or teacher
   test('It should create a student as an admin or teacher role', async () => {
     expect(authToken).toBeDefined()
@@ -94,6 +93,18 @@ describe('Test the users endpoints', () => {
     expect(response.statusCode).toBe(200)
     expect(response.body).toHaveProperty('student');
     expect(response.body).toHaveProperty('token');
+  })
+
+  // Show
+  test('It should create a new user', async () => {
+    expect(authToken).toBeDefined()
+    expect(userId).toBeDefined()
+
+    const response = await request(app)
+      .get(`/users/${userId}`)
+      .set('Authorization', `Bearer ${authToken}`)
+    
+    expect(response.statusCode).toBe(200)
   })
   
   // Destroy
