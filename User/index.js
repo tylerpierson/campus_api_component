@@ -182,47 +182,25 @@ const controller = {
     },
 
     // Create a new student as a teacher and push that student id into the teacher.students array
-    async adminCreate(req, res) {
+    async createStudent(req, res) {
         try {
-            const adminId = req.params.id
-            const admin = await Model.findById(adminId)
+            const staffId = req.params.id
+            const staff = await Model.findById(staffId)
     
-            if (!admin || admin.role !== 'admin') {
-                return res.status(404).json({ error: 'Admin not found or invalid role' })
-            }
-            
-            const teacher = new Model(req.body)
-            teacher.role = 'teacher'
-            await teacher.save()
-    
-            admin.teachers.push(teacher._id)
-            await admin.save()
-    
-            const token = await teacher.generateAuthToken()
-    
-            res.json({ teacher, token })
-        } catch (error) {
-            res.status(400).json({ message: error.message })
-        }
-    },
-
-    // Create a new student as a teacher and push that student id into the teacher.students array
-    async teacherCreateStudent(req, res) {
-        try {
-            const teacherId = req.params.id
-            const teacher = await Model.findById(teacherId)
-    
-            if (!teacher || teacher.role !== 'teacher') {
-                return res.status(404).json({ error: 'Teacher not found or invalid role' })
+            if (!staff || staff.role === 'student') {
+                return res.status(404).json({ error: 'Staff member not found or invalid role' })
             }
             
             const student = new Model(req.body)
             student.role = 'student'
-            student.teachers.push(teacher._id)
-            await student.save()
+
+            if(staff.role === 'teacher') {
+                student.teachers.push(staff._id)
+                await student.save()
+            }
     
-            teacher.students.push(student._id)
-            await teacher.save()
+            staff.students.push(student._id)
+            await staff.save()
     
             const token = await student.generateAuthToken()
     
@@ -260,14 +238,12 @@ const controller = {
 
 // Setup User router
 router.get('/', controller.auth, controller.adminRole, controller.index) // Index router
-// router.post('/', controller.create) // Create router
 router.post(`/${campusCode}`, controller.create) // Create with campus Code
 router.post('/login', controller.login) // Login router
 router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
 router.delete('/:id', controller.auth, controller.adminRole, controller.destroy) // Destroy router
 router.get('/:id', controller.show) // Show router
-router.post('/:id', controller.adminCreate)
-router.post('/:id', controller.teacherCreateStudent) // Create a student as a teacher *** NEEDS TESTING STILL ***
+router.post('/:id', controller.auth, controller.createStudent) // Create a student as a teacher *** NEEDS TESTING STILL ***
 router.post('/:userId/assignments/:assignmentId', controller.auth, controller.staffPermissions, controller.addAssignment)
 
 
