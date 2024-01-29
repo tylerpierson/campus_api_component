@@ -93,3 +93,28 @@ If you are currently logged into an admin account or a teacher account, you can 
     }
 ```
 Once the student has been created, the newly created student ID will be populated into the creating user's 'students' array, and if the creator is a 'teacher' role, then the teacher's ID will be populated in the newly created student's 'teachers' array.
+
+### Create an assignment
+To create an assignment, a POST request must be sent with the following JSON format in the body of the request:
+```
+    {
+        "title": "Assignment 1",
+        "description: "This is the first assignment",
+        "completed": false
+    }
+```
+Once the assignment has been created, it will generate an ID for that specific assignment.
+
+### Add assignment to a user in the database
+In order to add an assignment to the 'assignments' array within the user model, a POST request must be sent to **localhost:3000/users/:userId/assignments/:assignmentId**.
+
+### Update an assignment
+
+
+### Index assignments
+
+
+### Show an assignment
+
+
+### Destroy an assignment
