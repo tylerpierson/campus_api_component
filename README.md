@@ -61,3 +61,35 @@ After this sends, it should return a new user with an ID. This ID will be used l
 
 ### Login User
 To log into the user account, another POST request will be sent to **localhost:3000/users/login**. The only information that will be needed is a valid **email** and **password** from an existing user. Once that user has been logged in, an authentication token will be generated to grant that user specific permissions. For the recently created admin, it is important to grab that token and store it in the header with a key of *Authorization* and a value of *Bearer <\your auth token>*. This will be utilized later when creating more teachers and students.
+
+### Index Users
+To index the users, send a GET request to **localhost:3000/users** as an administrator with an admin auth token in the header. No body is required to send this request.
+This request should return a list of all created users in the database.
+
+### Update Users
+To update a user, the user's role must be 'admin' or 'teacher' according to the permissions granted by the **staffPermissions** middleware that is in place. The user will submit a PUT request to **localhost:3000/:id** and within the body, will input JSON text in the following format:
+```
+    {
+        "name": "Jane Doe"
+    }
+```
+Once submitted, this change will be made and the user will be displayed with the new changes.
+
+### Destroy Users
+The destroy controller is only authorized by an administrator and is inaccessible by any other role. Submit a DELETE request to **localhost:3000/users/:id** to destroy whichever user was selected. A message should display indicating that the user has been successfully destroyed.
+
+### Show User
+To show an individual user, submit a GET request to **localhost:3000/users/:id**. *No authorization necessary*.
+
+### Create a new **STUDENT** as a staff member (Admin or Teacher)
+If you are currently logged into an admin account or a teacher account, you can create new student account by submitting a POST request to **localhost:3000/users/:id**. When creating the student be sure to enter the role as 'student' or it will not process correctly.
+```
+    {
+        "name": "Steve Rogers",
+        "email": "steve@student.com",
+        "password": "secret",
+        "campus": "GA Elementary",
+        "role": "student"
+    }
+```
+Once the student has been created, the newly created student ID will be populated into the creating user's 'students' array, and if the creator is a 'teacher' role, then the teacher's ID will be populated in the newly created student's 'teachers' array.

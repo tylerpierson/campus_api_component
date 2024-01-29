@@ -181,7 +181,7 @@ const controller = {
         }
     },
 
-    // Create a new student as a teacher and push that student id into the teacher.students array
+    // Create a new student as a staff member and push that student id into the staff.students array
     async createStudent(req, res) {
         try {
             const staffId = req.params.id
