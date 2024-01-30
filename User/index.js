@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
         unique: true
     },
     password: { type: String, required: true},
-    campus: {type: String, required: true},
+    campusNum: {type: Number},
     role: {
         type: String,
         enum: ['admin', 'teacher', 'student'],
@@ -69,6 +69,14 @@ const controller = {
         } catch (error) {
             res.status(401).send('Not authorized')
         }
+    },
+
+    async campusProtection(req, res, next) {
+        if(req.user.campusNum !== campusCode) {
+            res.status(401).json('Cannot create user without proper Campus Code')
+            return
+        }
+        next()
     },
 
     // adminRole middleware to prevent teachers and students from accessing certain datasets
@@ -238,7 +246,7 @@ const controller = {
 
 // Setup User router
 router.get('/', controller.auth, controller.adminRole, controller.index) // Index router
-router.post(`/${campusCode}`, controller.create) // Create with campus Code
+router.post('/', controller.campusProtection, controller.create) // Create with campus Code
 router.post('/login', controller.login) // Login router
 router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
 router.delete('/:id', controller.auth, controller.adminRole, controller.destroy) // Destroy router
