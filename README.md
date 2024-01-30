@@ -2,6 +2,8 @@
 This is a **Campus Population Database Application**, a streamlined example 
 showcasing a RESTful API seamlessly integrated with a backend **MongoDB** database.
 
+![Model Example Image](https://i.imgur.com/jLc3SEU.png)
+
 The application is designed in a component driven format and is split into two main components, 
 **Users** and **Assignments**. The index.js files within these two directories house the models, 
 controllers, and routes for the entire application.
