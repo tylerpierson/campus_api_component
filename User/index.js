@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
         unique: true
     },
     password: { type: String, required: true},
-    campusNum: {type: Number},
+    campusNum: String,
     role: {
         type: String,
         enum: ['admin', 'teacher', 'student'],
@@ -72,8 +72,10 @@ const controller = {
     },
 
     async campusProtection(req, res, next) {
-        if(req.user.campusNum !== campusCode) {
-            res.status(401).json('Cannot create user without proper Campus Code')
+        const user = new Model(req.body)
+
+        if(user.campusNum !== campusCode) {
+            res.status(401).json('Incorrect campus code. Please see your administrator for more information.')
             return
         }
         next()
@@ -110,7 +112,7 @@ const controller = {
     // Index
     async index(req, res) {
         try {
-            const users = await Model.find({})
+            const users = await Model.find({ campusNum: `${campusCode}`})
             res.status(200).json(users)
         } catch (error) {
             res.status(400).json({ message: error.message })
@@ -189,6 +191,52 @@ const controller = {
         }
     },
 
+    // Show Class
+    async showClass(req, res) {
+        try {
+            const userId = req.params.id
+            
+            const user = await Model.findById(userId)
+                .populate('teachers', 'name email campusNum role subjects')
+                .populate('students', 'name email campusNum role subjects')
+
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' })
+            }
+
+            res.status(200).json(user)
+        } catch (error) {
+            res.status(400).json({ message: error.message })
+        }
+    },
+
+    // Create a new teacher as an administrator and push that teacher id into the admin.teachers array
+    async createTeacher(req, res) {
+        try {
+            const adminId = req.params.id
+            const admin = await Model.findById(adminId)
+    
+            if (!admin || admin.role !== 'admin') {
+                return res.status(404).json({ error: 'Admin member not found or invalid role' })
+            }
+            
+            const teacher = new Model(req.body)
+            teacher.role = 'teacher'
+
+            teacher.campusNum = admin.campusNum
+
+            admin.teachers.push(teacher._id)
+            await admin.save()
+            await teacher.save()
+
+            const token = await teacher.generateAuthToken()
+    
+            res.json({ teacher, token })
+        } catch (error) {
+            res.status(400).json({ message: error.message })
+        }
+    },
+
     // Create a new student as a staff member and push that student id into the staff.students array
     async createStudent(req, res) {
         try {
@@ -201,6 +249,8 @@ const controller = {
             
             const student = new Model(req.body)
             student.role = 'student'
+
+            student.campusNum = staff.campusNum
 
             if(staff.role === 'teacher') {
                 student.teachers.push(staff._id)
@@ -251,7 +301,9 @@ router.post('/login', controller.login) // Login router
 router.put('/:id', controller.auth, controller.staffPermissions, controller.update) // Update router
 router.delete('/:id', controller.auth, controller.adminRole, controller.destroy) // Destroy router
 router.get('/:id', controller.show) // Show router
-router.post('/:id', controller.auth, controller.createStudent) // Create a student as a teacher
+router.get('/class/:id', controller.showClass) // Show router that only shows one class
+router.post('/:id', controller.auth, controller.createTeacher) // Create a teacher as admin
+router.post('/addStudent/:id', controller.auth, controller.createStudent) // Create a student as a staff member
 router.post('/:userId/assignments/:assignmentId', controller.auth, controller.staffPermissions, controller.addAssignment)
 
 

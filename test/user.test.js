@@ -29,8 +29,8 @@ describe('Test the users endpoints', () => {
   // Create using campus code
   test('It should create a new user', async () => {
     const response = await request(app)
-      .post(`/users/${campusCode}`)
-      .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', campus: 'SES', role: 'admin' })
+      .post(`/users`)
+      .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', campusNum: `${campusCode}`, role: 'admin' })
     
     expect(response.statusCode).toBe(200)
     expect(response.body.user.name).toEqual('John Doe')
@@ -55,7 +55,7 @@ describe('Test the users endpoints', () => {
   })
 
   // Index
-  test('It should create a new user', async () => {
+  test('It should index all users', async () => {
     expect(authToken).toBeDefined()
 
     const response = await request(app)
@@ -88,7 +88,7 @@ describe('Test the users endpoints', () => {
     const response = await request(app)
       .post(`/users/${userId}`)
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', campus: 'SES', role: 'student' })
+      .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', campusNum: `${campusCode}`, role: 'student' })
     
     expect(response.statusCode).toBe(200)
     expect(response.body).toHaveProperty('student');
