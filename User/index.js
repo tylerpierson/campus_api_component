@@ -71,6 +71,7 @@ const controller = {
         }
     },
 
+    // Middleware that ensures the intial user has a campus code prior to creating an account
     async campusProtection(req, res, next) {
         const user = new Model(req.body)
 
