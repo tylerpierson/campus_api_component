@@ -92,12 +92,12 @@ describe('Test the users endpoints', () => {
       .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', role: 'student' })
     
     expect(response.statusCode).toBe(200)
-    expect(response.body).toHaveProperty('student');
-    expect(response.body).toHaveProperty('token');
+    expect(response.body).toHaveProperty('student')
+    expect(response.body).toHaveProperty('token')
   })
 
   // Show
-  test('It should create a new user', async () => {
+  test('It should show an existing user', async () => {
     expect(authToken).toBeDefined()
     expect(userId).toBeDefined()
 
@@ -106,6 +106,33 @@ describe('Test the users endpoints', () => {
       .set('Authorization', `Bearer ${authToken}`)
     
     expect(response.statusCode).toBe(200)
+  })
+
+  // Show Class
+  test('It should show an existing user with the students in their specific class', async () => {
+    expect(authToken).toBeDefined()
+    expect(userId).toBeDefined()
+
+    const response = await request(app)
+      .get(`/users/class/${userId}`)
+      .set('Authorization', `Bearer ${authToken}`)
+
+    expect(response.statusCode).toBe(200)
+  })
+
+  // Create a new Teacher as an Administrator
+  test('It should create a new teacher as an administrator and push that teacher\'s ID into the admin\'s teachers array', async () => {
+    expect(authToken).toBeDefined()
+    expect(userId).toBeDefined()
+
+    const response = await request(app)
+    .post(`/users/${userId}`)
+    .set('Authorization', `Bearer ${authToken}`)
+    .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', role: 'teacher' })
+  
+  expect(response.statusCode).toBe(200)
+  expect(response.body).toHaveProperty('teacher')
+  expect(response.body).toHaveProperty('token')
   })
 
   // Add assignment
