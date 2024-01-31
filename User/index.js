@@ -113,7 +113,7 @@ const controller = {
     // Index
     async index(req, res) {
         try {
-            const users = await Model.find({ campusNum: `${campusCode}`})
+            const users = await Model.find({ campusNum: `${campusCode}` })
             res.status(200).json(users)
         } catch (error) {
             res.status(400).json({ message: error.message })

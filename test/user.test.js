@@ -6,7 +6,6 @@ const app = require('../app') // this is our api application that we made with e
 const mongoose = require('mongoose')
 const server = app.listen(8080, () => console.log('Testing on Port 8080'))
 const campusCode = process.env.CAMPUS_CODE
-const assignment = require('../Assignment/index')
 let mongoServer 
 
 beforeAll(async () => {
