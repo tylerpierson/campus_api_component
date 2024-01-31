@@ -6,6 +6,7 @@ const app = require('../app') // this is our api application that we made with e
 const mongoose = require('mongoose')
 const server = app.listen(8080, () => console.log('Testing on Port 8080'))
 const campusCode = process.env.CAMPUS_CODE
+const assignment = require('../Assignment/index')
 let mongoServer 
 
 beforeAll(async () => {
@@ -86,9 +87,9 @@ describe('Test the users endpoints', () => {
     expect(userId).toBeDefined()
 
     const response = await request(app)
-      .post(`/users/${userId}`)
+      .post(`/users/addStudent/${userId}`)
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', campusNum: `${campusCode}`, role: 'student' })
+      .send({ name: 'John Doe', email: 'john.doe@example.com', password: 'password123', role: 'student' })
     
     expect(response.statusCode).toBe(200)
     expect(response.body).toHaveProperty('student');
@@ -105,6 +106,30 @@ describe('Test the users endpoints', () => {
       .set('Authorization', `Bearer ${authToken}`)
     
     expect(response.statusCode).toBe(200)
+  })
+
+  // Add assignment
+  test('It should add an assignment to a user\'s assignment array.', async () => {
+    expect(authToken).toBeDefined()
+    expect(userId).toBeDefined()
+
+    const assignmentResponse = await request(app)
+    .post('/assignments')
+    .send({
+      title: 'Sample Assignment',
+      description: 'This is a sample assignment.',
+    })
+
+    let assignmentId = assignmentResponse.body._id
+
+    const response = await request(app)
+      .post(`/users/${userId}/assignments/${assignmentId}`)
+      .set('Authorization', `Bearer ${authToken}`)
+
+    expect(response.statusCode).toBe(200)
+    expect(response.body).toHaveProperty('msg')
+    expect(response.body).toHaveProperty('user')
+    expect(response.body).toHaveProperty('assignment')
   })
   
   // Destroy
