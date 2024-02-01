@@ -141,7 +141,7 @@ const controller = {
             res.status(400).send('Invalid login credentials')
             } else {
             const token = await user.generateAuthToken()
-            res.json({ user, token })
+                res.json({ user, token })
             }
         } catch(error){
             res.status(400).json({message: error.message})

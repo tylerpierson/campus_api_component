@@ -12,4 +12,8 @@ app.use('/assignments', Assignment.router)
 app.set('view engine', 'jsx')
 app.engine('jsx', jsxEngine())
 
+app.get('/user/login', (req, res) => {
+    res.render('users/Login')
+})
+
 module.exports = app
