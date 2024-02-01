@@ -4,6 +4,8 @@ const User = require('./User')
 const Assignment = require('./Assignment')
 const jsxEngine = require('jsx-view-engine')
 
+app.use(express.static('public'))
+app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use('/users', User.router)
 app.use('/assignments', Assignment.router)
