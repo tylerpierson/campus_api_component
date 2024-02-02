@@ -64,7 +64,7 @@ After this sends, it should return a new user with an ID. This ID will be used l
 ### Login User
 To log into the user account, another POST request will be sent to **localhost:3000/users/login**. The only information that will be needed is a valid **email** and **password** from an existing user. Once that user has been logged in, an authentication token will be generated to grant that user specific permissions. For the recently created admin, it is important to grab that token and store it in the header with a key of *Authorization* and a value of *Bearer <\your auth token>*. This will be utilized later when creating more teachers and students.
 
-![Login Model Example Image](https://i.imgur.com/fgGWubY.png)
+![Login Model Example Image](https://i.imgur.com/ixF5UZh.png)
 
 ### Index Users
 To index the users, send a GET request to **localhost:3000/users** as an administrator with an admin auth token in the header. No body is required to send this request.

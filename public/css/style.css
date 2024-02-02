@@ -80,11 +80,11 @@ nav ul {
     cursor: pointer;
 }
 
-.rocket-img {
-    width: 40px;
+.ufo-img {
+    width: 80px;
     position: absolute;
     z-index: -1000;
-    animation: rocketAnimation 7s infinite;
+    animation: ufoAnimation 7s infinite;
 }
 
 .stars {
@@ -126,6 +126,9 @@ nav ul {
     width: 55px;
     bottom: 25px;
     left: 35px;
+}
+.stars-eight, .stars-nine, .stars-ten, .stars-eleven, .stars-twelve, .stars-thirteen, .stars-fourteen, .stars-fifteen {
+    display: none;
 }
 
 h1 {
@@ -204,7 +207,7 @@ button {
     transition: .5s ease;
 }
 
-@keyframes rocketAnimation {
+@keyframes ufoAnimation {
     0% { top: 1000px; left: 0; }
     30% { top: 500px; left: 500px; }
     68%, 72% { top: 200px; left: 50px; }
@@ -293,4 +296,65 @@ button {
     h2 {
         width: 100%;
     }
+}
+
+@media only screen and (min-width: 900px) {
+    .stars-eight, .stars-nine, .stars-ten, .stars-eleven, .stars-twelve, .stars-thirteen, .stars-fourteen, .stars-fifteen {
+        display: block;
+    }
+
+    .stars-eight {
+        width: 55px;
+        bottom: 125px;
+        right: 135px;
+    }
+
+    .stars-nine {
+        width: 55px;
+        bottom: 325px;
+        right: 535px;
+    }
+
+    .stars-ten {
+        width: 55px;
+        bottom: 525px;
+        left: 635px;
+    }
+
+    .stars-eleven {
+        width: 55px;
+        bottom: 725px;
+        right: 935px;
+    }
+
+    .stars-twelve {
+        width: 55px;
+        bottom: 925px;
+        right: 765px;
+    }
+
+    .stars-thirteen {
+        width: 55px;
+        bottom: 225px;
+        left: 1035px;
+    }
+
+    .stars-fourteen {
+        width: 55px;
+        top: 325px;
+        left: 1100px;
+    }
+
+    .stars-fifteen {
+        width: 55px;
+        bottom: 25px;
+        left: 35px;
+    }
+
+    @keyframes ufoAnimation {
+        0% { top: 1500px; left: 0; }
+        30% { top: 800px; left: 900px; }
+        68%, 72% { top: 500px; left: 750px; }
+        100% { top: 100px; left: 110%; }
+      }
 }
