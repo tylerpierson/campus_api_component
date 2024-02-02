@@ -48,14 +48,14 @@ To run the automated tests, run ```npm run test``` in the command line. This sho
 and **12 Tests** have passed with **0 fails**, indicating a successful installation of the application.
 
 ## Running Manual Tests in PostMan
-### Create initial user
+### Create initial user using a CAMPUS CODE
 In order to create an initial user on the application, a campus code is needed. With the proper code connected through the .env file, you would send a POST request to **localhost:3000/users/${campusCode}**. The necessary information can be located within the **User/index.js** file, but can be seen below with example values (any information not included from the userSchema is optional). This information will be placed as JSON in the body of the postman request:
 ```
     {
         "name": "John Doe",
         "email": "johndoe@admin.com",
         "password": "secret",
-        "campus": "GA Elementary"
+        "campusNum": `${campusCode}`
         "role": "admin"
     }
 ```
@@ -85,18 +85,23 @@ The destroy controller is only authorized by an administrator and is inaccessibl
 ### Show User
 To show an individual user, submit a GET request to **localhost:3000/users/:id**. *No authorization necessary*.
 
+### Show Class
+In order to show a specific class with the teacher and the students within that teacher's students array, send a get request as a teacher to **localhost:3000/users/class/:id**.
+
 ### Create a new **STUDENT** as a staff member (Admin or Teacher)
-If you are currently logged into an admin account or a teacher account, you can create new student account by submitting a POST request to **localhost:3000/users/:id**. When creating the student be sure to enter the role as 'student' or it will not process correctly.
+If you are currently logged into an admin account or a teacher account, you can create new student account by submitting a POST request to **localhost:3000/users/:id**. When creating the student be sure to enter the role as 'student' or it will not process correctly. The campusNum will be auto populated based on the creators campusNum.
 ```
     {
         "name": "Steve Rogers",
         "email": "steve@student.com",
         "password": "secret",
-        "campus": "GA Elementary",
         "role": "student"
     }
 ```
 Once the student has been created, the newly created student ID will be populated into the creating user's 'students' array, and if the creator is a 'teacher' role, then the teacher's ID will be populated in the newly created student's 'teachers' array.
+
+### Create a new **TEACHER** as an admin role
+If you are logged into an admin account, you can create a new teacher by following the same steps as above when creating a student. The only difference, is that the teacher's role must be set as 'teacher' prior to submission.
 
 ### Create an assignment
 To create an assignment, a POST request must be sent with the following JSON format in the body of the request:
@@ -113,12 +118,19 @@ Once the assignment has been created, it will generate an ID for that specific a
 In order to add an assignment to the 'assignments' array within the user model, a POST request must be sent to **localhost:3000/users/:userId/assignments/:assignmentId**.
 
 ### Update an assignment
+To update an assignment, send a PUT request to **localhost:3000/assignments/:id** with the updated information in the body.
 
+```
+    {
+        "title": "Measurements and Angles assignment"
+    }
+```
 
 ### Index assignments
-
+To index all assignments that have been created, send a GET request to **localhost:3000/assignments**. This will return a list of all previously made assignments.
 
 ### Show an assignment
-
+In order to show an existing assignment, send a GET request to **localhost:3000/assignments/:id**. This will return one specific assignment.
 
 ### Destroy an assignment
+To destroy or delete an existing assignment, send a DELETE request to **localhost:3000/assignments/:id**. When the assignment is deleted successfully, you should receive back a message of `The assignment with the ID of ${deletedAssignment._id} was deleted from the MongoDB database. No further action necessary.`
