@@ -1,5 +1,6 @@
 const React = require('react')
 const Login = require('../users/Login')
+const Nav = require('../Layouts/Nav')
 
 class Layout extends React.Component {
     render() {
@@ -8,6 +9,7 @@ class Layout extends React.Component {
           <head>
             <link rel="stylesheet" href="/css/style.css" />
           </head>
+          <Nav></Nav>
           <body>
             {this.props.children}
           </body>
