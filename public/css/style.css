@@ -298,7 +298,7 @@ button {
     }
 }
 
-@media only screen and (min-width: 900px) {
+@media only screen and (min-width: 1800px) {
     .stars-eight, .stars-nine, .stars-ten, .stars-eleven, .stars-twelve, .stars-thirteen, .stars-fourteen, .stars-fifteen {
         display: block;
     }
