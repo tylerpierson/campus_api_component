@@ -29,6 +29,43 @@ campus-api-component
     |-- README.md
     |-- server.js
 ```
+## Included Models
+### User Model ('admin', 'teacher', 'student')
+```
+const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: { type: String, required: true},
+    campusNum: String,
+    role: {
+        type: String,
+        enum: ['admin', 'teacher', 'student'],
+        default: 'admin'
+    },
+    subjects: [String],
+    students: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+    teachers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+    assignments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'}],
+})
+```
+### Assignment Model
+```
+const assignmentSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    description: String,
+    completed: { type: Boolean, default: false },
+    class: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
+},{
+    timestamps: true
+})
+```
 
 ## Getting Started
 1. Navigate to where the directory will be stored within your computer.

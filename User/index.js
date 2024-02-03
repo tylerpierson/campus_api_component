@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
     students: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     teachers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     assignments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'}],
-});
+})
 
 userSchema.pre('save', async function(next) {
     if(this.isModified('password')) {
