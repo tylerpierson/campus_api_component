@@ -22,6 +22,12 @@ campus-api-component
     |   |-- user.test.js
     |-- User
     |   |-- index.js
+    |-- views
+    |   |-- Layouts
+    |   |   |-- Layout.jsx
+    |   |   |-- Nav.jsx
+    |   |-- users
+    |   |   |-- Login.jsx
     |-- .gitignore
     |-- app.js
     |-- package-lock.json
